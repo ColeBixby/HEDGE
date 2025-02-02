@@ -1,4 +1,7 @@
 # HEDGE
 Repository for HEDGE Software and Avionics team
-Hola amigos
-I'm still dumb
+
+Team Members:
+* Cole Bixby
+* Jason Morefield
+* Caleb White
