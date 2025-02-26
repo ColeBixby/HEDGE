@@ -1,5 +1,7 @@
 import pandas as pd
-from dataRecorder import dataRecorder
+import threading
+import time
+from datetime import datetime
 
 class dataframeHandling:
 
@@ -37,18 +39,78 @@ class dataframeHandling:
             press.drop(press.index, inplace=True)
             gnss.drop(gnss.index, inplace=True)
 
+    def collectTemp(self):
+        try:
+            time = datetime.now()
+            temp1 = 13
+            temp2 = 14
+            temp3 = 12.5
+            temp4 = 13.5
+            return time, temp1, temp2, temp3, temp4
+        except Exception:
+            pass
+
+    def collectPress(self):
+        try:
+            time = datetime.now()
+            press1 = 3.8
+            press2 = 6.5
+            press3 = 4.3
+            press4 = 6.2
+            return time, press1, press2, press3, press4
+        except Exception:
+            pass
+
+    def collectGNSS(self):
+        try:
+            time = datetime.now()
+            gnss = "3333.5555.6666.7777"
+            return time, gnss
+        except Exception:
+            pass
+
+    def storeTemperature(self, df):
+        while True:
+            start = time.time()
+            tempData = self.collectTemp()
+            df = self.addEntry(df, tempData)
+            elapsed = time.time() - start
+            time.sleep(max(0, 0.5 - elapsed))
+            print(df)
+            print()
+
+    def storePressure(self, df):
+        while True:
+            start = time.time()
+            pressData = self.collectPress()
+            df = self.addEntry(df, pressData)
+            elapsed = time.time() - start
+            time.sleep(max(0, 0.5 - elapsed))
+            print(df)
+            print()
+
+    def storeGNSS(self, df):
+        while True:
+            start = time.time()
+            gnssData = self.collectGNSS()
+            df = self.addEntry(df, gnssData)
+            elapsed = time.time() - start
+            time.sleep(max(0, 0.5 - elapsed))
+            print(df)
+            print()
+
 def buildDataframes():
     matrixHandling = dataframeHandling()
     x = matrixHandling.buildTempDataframe()
     y = matrixHandling.buildPressDataframe()
     z = matrixHandling.buildGNSSDataframe()
-    recorder = dataRecorder()
-    tempData = dataRecorder.collectTemp(recorder)
-    pressData = dataRecorder.collectPress(recorder)
-    gnssData = dataRecorder.collectGNSS(recorder)
-    x = matrixHandling.addEntry(x, tempData)
-    y = matrixHandling.addEntry(y, pressData)
-    z = matrixHandling.addEntry(z, gnssData)
+
+    tempThread = threading.Thread(target=matrixHandling.storeTemperature, args=(x,))
+    pressThread = threading.Thread(target=matrixHandling.storePressure, args=(y,))
+    gnssThread = threading.Thread(target=matrixHandling.storeGNSS, args=(z,))
+    tempThread.start()
+    pressThread.start()
+    gnssThread.start()
 
 
 if __name__ == '__main__':
