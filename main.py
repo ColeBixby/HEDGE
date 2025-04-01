@@ -7,18 +7,6 @@ from max6675 import MAX6675
 StopThread = False
 
 class DataHandling:
-    def build_temp_dataframe(self):
-        # Each entry is a tuple: (time, temp1, temp2, temp3, temp4)
-        return []
-
-    def build_press_dataframe(self):
-        # Each entry is a tuple: (time, press1, press2, press3, press4)
-        return []
-
-    def build_gnss_dataframe(self):
-        # Each entry is a tuple: (time, gnss)
-        return []
-
     def add_entry(self, dataframe, values):
         dataframe.append(values)
         return dataframe
@@ -32,19 +20,24 @@ class DataHandling:
             press.clear()
             gnss.clear()
 
+    def initializeThermocouples(self):
+        self.tempSensor1 = MAX6675(sck_pin=18, cs_pin=17, so_pin=16).read()
+        #self.tempSensor2 = MAX6675(sck_pin=18, cs_pin=20, so_pin=16).read()
+        #self.tempSensor3 = MAX6675(sck_pin=18, cs_pin=7, so_pin=16).read()
+        #self.tempSensor4 = MAX6675(sck_pin=18, cs_pin=6, so_pin=16).read()
+
     def collect_temp(self):
         try:
             current_time = utime.localtime()[5]
-            #MAX6675.refresh()
-            #while MAX6675.ready() != True:
-            #    utime.sleep(.05)
-            temp1 = MAX6675(sck_pin=18, cs_pin=17, so_pin=16).read()
-            #temp2 = MAX6675(sck_pin=18, cs_pin=20, so_pin=16).read()
-            #temp3 = MAX6675(sck_pin=18, cs_pin=7, so_pin=16).read()
-            #temp4 = MAX6675(sck_pin=18, cs_pin=6, so_pin=16).read()
-            #return (current_time, temp1)
+            self.tempSensor1.refresh()
+            while not self.tempSensor1.ready():
+                utime.sleep_ms(10)
+            temp1 = self.tempSensor1.read()
+            if self.tempSensor1.error():
+                print("ERROR WITH THERMOCOUPLE 1")
             return (current_time, temp1)
         except Exception as e:
+            print("ERROR IN collect_temp", e)
             return None
 
     def collect_press(self):
@@ -62,6 +55,7 @@ class DataHandling:
 
             return (current_time, press1, press2)
         except Exception as e:
+            print("ERROR IN collect_press", e)
             return None
 
     def collect_gnss(self):
@@ -70,6 +64,7 @@ class DataHandling:
             gnss = UART(1,baudrate=9600,tx=Pin(4),rx=Pin(5),timeout=2000)
             return (current_time, gnss)
         except Exception as e:
+            print("ERROR IN collect_gnss", e)
             return None
 
     def store_temperature(self, df):
@@ -118,9 +113,9 @@ def build_dataframes():
     dh = DataHandling()
 
     try:
-        temp_df = dh.build_temp_dataframe()
-        #press_df = dh.build_press_dataframe()
-        #gnss_df = dh.build_gnss_dataframe()
+        temp_df = []
+        #press_df = []
+        #gnss_df = []
         print("Dataframes created successfully")
     except Exception as e:
         print("Error building dataframes", e)
