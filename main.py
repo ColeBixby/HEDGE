@@ -2,7 +2,7 @@ import utime
 import _thread
 from machine import Pin,UART
 from machine import I2C
-from ads1x15 import ADS1115
+from ads1x15 import ADS1115, ADS1015
 from max6675 import MAX6675
 StopThread = False
 
@@ -21,28 +21,22 @@ class DataHandling:
             gnss.clear()
 
     def initializeThermocouples(self):
-        self.tempSensor1 = MAX6675(sck_pin=18, cs_pin=17, so_pin=16).read()
-        #self.tempSensor2 = MAX6675(sck_pin=18, cs_pin=20, so_pin=16).read()
-        #self.tempSensor3 = MAX6675(sck_pin=18, cs_pin=7, so_pin=16).read()
-        #self.tempSensor4 = MAX6675(sck_pin=18, cs_pin=6, so_pin=16).read()
+        i2c = I2C(0, sda=Pin(12), scl=Pin(13), freq=400_000)
+        self.tempSensor1 = ADS1015(i2c, address=0x48, gain=16)
+        self.tempSensor1.set_conv(rate=4, channel1=0, channel2=1)
 
     def collect_temp(self):
         try:
             current_time = utime.localtime()[5]
-            self.tempSensor1.refresh()
-            while not self.tempSensor1.ready():
-                utime.sleep_ms(10)
-            temp1 = self.tempSensor1.read()
-            if self.tempSensor1.error():
-                print("ERROR WITH THERMOCOUPLE 1")
-            return (current_time, temp1)
+            raw = self.tempSensor1.read(rate=4, channel1=0, channel2=1)  
+            volts = self.tempSensor1.raw_to_v(raw)
+            return (current_time, volts)
         except Exception as e:
             print("ERROR IN collect_temp", e)
             return None
 
     def collect_press(self):
         try:
-            result = [None] * 5
             i2c = I2C(0, sda=Pin(12), scl=Pin(13))
             ads1 = ADS1115(i2c, address=0x48, gain=0)
             ads2 = ADS1115(i2c, address=0x49, gain=0)
@@ -111,6 +105,7 @@ class DataHandling:
 
 def build_dataframes():
     dh = DataHandling()
+    dh.initializeThermocouples()
 
     try:
         temp_df = []
