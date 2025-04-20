@@ -22,15 +22,15 @@ class DataHandling:
 
     def initializeThermocouples(self):
         i2c = I2C(0, sda=Pin(12), scl=Pin(13), freq=400_000)
-        self.tempSensor1 = ADS1015(i2c, address=0x48, gain=16)
-        self.tempSensor1.set_conv(rate=4, channel1=0, channel2=1)
+        self.tempSensor1 = ADS1015(i2c, address=0x4A, gain=5)
 
     def collect_temp(self):
         try:
             current_time = utime.localtime()[5]
-            raw = self.tempSensor1.read(rate=4, channel1=0, channel2=1)  
+            raw = self.tempSensor1.read(rate=0, channel1=0)  
             volts = self.tempSensor1.raw_to_v(raw)
-            return (current_time, volts)
+            temperature_c = volts / 0.000041
+            return (current_time, temperature_c)
         except Exception as e:
             print("ERROR IN collect_temp", e)
             return None
