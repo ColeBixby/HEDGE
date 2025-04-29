@@ -1,10 +1,10 @@
-import utime
-import _thread
-from machine import Pin,UART
-from machine import I2C
+import utime, _thread
+import IridiumTransmission as Transmitter
+from machine import Pin, UART, I2C
 from ads1x15 import ADS1115, ADS1015
 from max6675 import MAX6675
 StopThread = False
+Transmitter.initializeTransmission()
 
 class DataHandling:
     def add_entry(self, dataframe, values):
@@ -73,6 +73,9 @@ class DataHandling:
                 utime.sleep_ms(500 - elapsed)
             print("Temp 1 Data:")
             print(df)
+            # Add iridium transmission code here
+            global Transmitter
+            Transmitter.iridium_loop(str(df))
             print()
 
     def store_pressure(self, df):
@@ -137,7 +140,7 @@ def build_dataframes():
     
 
     # Keep the main thread alive
-    utime.sleep(10)
+    utime.sleep(5)
     global StopThread
     StopThread = True
 
