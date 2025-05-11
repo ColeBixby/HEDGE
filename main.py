@@ -1,10 +1,10 @@
-import utime, _thread
-import IridiumTransmission as Transmitter
-from machine import Pin, UART, I2C
-from ads1x15 import ADS1115, ADS1015
-from max6675 import MAX6675
-StopThread = False
-Transmitter.initializeTransmission()
+#import utime, _thread
+#import IridiumTransmission as Transmitter
+#from machine import Pin, UART, I2C
+#from ads1x15 import ADS1115, ADS1015
+#from max6675 import MAX6675
+#StopThread = False
+#Transmitter.initializeTransmission()
 
 class DataHandling:
     def add_entry(self, dataframe, values):
@@ -106,9 +106,33 @@ class DataHandling:
             print(df)
             print()
 
+    def generateCompressedString(self, time, temp, press, vel, alt):
+        timeStr = str(time).zfill(3)
+        tempStr = ""
+        for t in temp:
+            tempStr += str(round(t/3)).zfill(2)
+        pressStr = ""
+        for p in press:
+            pressStr += str(round(p*10)).zfill(3)
+        velStr = str(round(vel)).zfill(4)
+        altStr = str(round(alt)).zfill(3)
+        dataString = f"{timeStr}{tempStr}{pressStr}{velStr}{altStr}"
+        return dataString
+
+
 def build_dataframes():
     dh = DataHandling()
+    time = 63
+    temps = [24.6, 101.9, 230, 65]
+    pressures = [77, 221.5]
+    velocity = 1234
+    altitude = 33
+    result = dh.generateCompressedString(time, temps, pressures, velocity, altitude)
+    print(result)
+
+    '''
     dh.initializeThermocouples()
+
 
     try:
         temp_df = []
@@ -143,6 +167,7 @@ def build_dataframes():
     utime.sleep(5)
     global StopThread
     StopThread = True
+    '''
 
 if __name__ == "__main__":
     try:
