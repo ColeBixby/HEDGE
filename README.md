@@ -38,4 +38,12 @@ Instructions for running code on HEDGE
 
 8. The code should now be actively running and live output can be seen by selecting the "Open terminal history" button under the device options menu in the PyMakr extension window
 <img width="461" alt="Screenshot 2025-04-29 at 2 50 07 PM" src="https://github.com/user-attachments/assets/e549dc91-81b3-4f5d-8100-40bb931bd67d" />
+<br/><br/>
+<br/><br/>
+<br/><br/>
+
+**<ins>TROUBLESHOOTING</ins>**
+- In the scenario that you are not able to add, remove, or modify any of the files on the pico, it is likely that the code is stuck in an infinite loop
+- To solve this you must put the pico in BOOTSEL mode and "nuke" it by uploading the "flash_nuke.uf2" file from the [following repository](https://github.com/dwelch67/raspberrypi-pico/blob/main/flash_nuke.uf2) which will wipe the pico
+- Now that the pico has been nuked, you need to add the MicroPython "Pico W" uf2 file which can be downloaded from the [Rasberry Pi website](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html)
 
